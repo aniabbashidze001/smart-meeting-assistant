@@ -8,8 +8,16 @@ function UploadMeeting() {
   const [showTranscript, setShowTranscript] = useState(false);
   const [transcript, setTranscript] = useState<{ speaker: string; text: string }[]>([]);
   const [filename, setFilename] = useState<string | null>(null);
+  const [preferredLanguage, setPreferredLanguage] = useState<string>(() =>
+    localStorage.getItem("preferredLanguage") || "English"
+  );
 
-  // ✅ Clear previously stored transcript filename on fresh page load
+  const languageOptions = {
+    English: "en",
+    Georgian: "ka",
+    Auto: "auto",
+  };
+
   useEffect(() => {
     localStorage.removeItem("transcriptFilename");
   }, []);
@@ -51,9 +59,7 @@ function UploadMeeting() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
-      setProgress(0);
-      setShowTranscript(false);
-      setFilename(null); // reset filename
+      resetState();
     }
   };
 
@@ -61,10 +67,16 @@ function UploadMeeting() {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setFile(e.dataTransfer.files[0]);
-      setProgress(0);
-      setShowTranscript(false);
-      setFilename(null); // reset filename
+      resetState();
     }
+  };
+
+  const resetState = () => {
+    setProgress(0);
+    setShowTranscript(false);
+    setTranscript([]);
+    setFilename(null);
+    localStorage.removeItem("transcriptFilename");
   };
 
   const handleTranscribe = async () => {
@@ -76,6 +88,10 @@ function UploadMeeting() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append(
+      "language",
+      languageOptions[preferredLanguage as keyof typeof languageOptions] || "auto"
+    );
 
     try {
       const response = await fetch("http://localhost:5050/api/transcribe", {
@@ -87,15 +103,15 @@ function UploadMeeting() {
       if (response.ok && Array.isArray(data.transcript)) {
         setTranscript(data.transcript);
         setFilename(data.filename);
-        localStorage.setItem("transcriptFilename", data.filename); // 💾 Store filename for summary
+        localStorage.setItem("transcriptFilename", data.filename);
         setShowTranscript(true);
-        console.log("✅ Saved filename:", data.filename);
+        console.log("✅ Transcript saved as:", data.filename);
       } else {
-        console.error("Transcription failed:", data.error);
+        console.error("❌ Transcription error:", data.error);
         alert("Transcription failed: " + data.error);
       }
-    } catch (error) {
-      console.error("Error uploading:", error);
+    } catch (err) {
+      console.error("❌ Upload error:", err);
       alert("Error uploading file");
     } finally {
       setIsTranscribing(false);
@@ -103,15 +119,44 @@ function UploadMeeting() {
     }
   };
 
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setPreferredLanguage(localStorage.getItem("preferredLanguage") || "English");
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const LanguageSelector = () => (
+    <select
+      value={preferredLanguage}
+      onChange={(e) => {
+        setPreferredLanguage(e.target.value);
+        localStorage.setItem("preferredLanguage", e.target.value);
+      }}
+      className="ml-2 px-3 py-1 border border-gray-300 rounded-md text-sm text-black"
+    >
+      <option value="Auto">Auto-detect</option>
+      <option value="English">English</option>
+      <option value="Georgian">Georgian (ქართული)</option>
+    </select>
+  );
+
   return (
     <Layout>
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-lg mt-6 animate-fade-in">
         <h2 className="text-3xl font-extrabold text-blue-600 mb-2 flex items-center gap-2">
           🎙️ <span>Upload Meeting Audio</span>
         </h2>
-        <p className="text-gray-600 mb-6">
-          Supported formats: <span className="font-medium text-gray-800">.mp3, .wav, .m4a</span>
-        </p>
+        <div className="flex justify-between items-center mb-6">
+          <p className="text-gray-600">
+            Supported formats: <span className="font-medium text-gray-800">.mp3, .wav, .m4a</span>
+          </p>
+          <div className="flex items-center">
+            <span className="text-sm text-gray-600">Language:</span>
+            <LanguageSelector />
+          </div>
+        </div>
 
         <label
           onDrop={handleDrop}
@@ -162,7 +207,6 @@ function UploadMeeting() {
                 <strong>{entry.speaker}:</strong> {entry.text}
               </p>
             ))}
-
             {filename && (
               <p className="mt-4 text-xs text-gray-500 italic">
                 🔖 Saved as: <code>{filename}</code>
