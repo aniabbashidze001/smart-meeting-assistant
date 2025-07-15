@@ -135,14 +135,15 @@ def generate_summary():
             except Exception as calendar_error:
                 print("⚠️ Structured function call failed:", calendar_error)
 
-        pattern = r"functions\.add_calendar_event\(\s*(\{.*?\})\s*\)"
+        pattern = r'functions\.add_calendar_event\(\s*\{\s*"title":\s*"([^"]+)",\s*"date":\s*"([^"]+)"\s*\}\s*\)'
         matches = re.findall(pattern, summary_text)
         for match in matches:
             try:
-                args = json.loads(match)
-                add_calendar_event(args["title"], args["date"])
+                title, date = match
+                add_calendar_event(title, date)
+                print(f"✅ Successfully added calendar event: {title}")
             except Exception as e:
-                print("⚠️ Simulated function call failed:", e)
+                print(f"⚠️ Failed to add calendar event: {e}")
 
         return jsonify({"summary": summary_text, "summary_file": summary_filename})
 

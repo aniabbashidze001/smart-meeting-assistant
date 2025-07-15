@@ -425,7 +425,7 @@ def generate_visual_summary():
     logger.info("Visual summary endpoint called")
 
     try:
-        summary_dir = "data"
+        summary_dir = "backend/data"
         if not os.path.exists(summary_dir):
             return jsonify({"error": "Summary directory not found"}), 404
 
@@ -558,7 +558,7 @@ PURPOSE: Track and manage meeting follow-ups""",
 def get_calendar_events():
     """Fetch calendar events from JSON file"""
     try:
-        events_file = os.path.join("data", "calendar_events.json")
+        events_file = os.path.join("backend/static_data", "calendar_events.json")
         if not os.path.exists(events_file):
             default_events = [
                 {
@@ -570,6 +570,7 @@ def get_calendar_events():
                     "attendees": ["Team Lead", "Developers", "PM"],
                 }
             ]
+            os.makedirs(os.path.dirname(events_file), exist_ok=True)
             with open(events_file, "w", encoding="utf-8") as f:
                 json.dump(default_events, f, indent=2)
             return jsonify(default_events)
