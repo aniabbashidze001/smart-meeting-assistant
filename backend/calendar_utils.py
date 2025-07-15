@@ -1,7 +1,7 @@
 import json
 import os
 
-CALENDAR_FILE = os.path.join("static_data", "calendar_events.json")
+CALENDAR_FILE = os.path.join("backend/static_data", "calendar_events.json")
 
 
 def add_calendar_event(title: str, date: str):
