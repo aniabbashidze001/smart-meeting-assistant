@@ -87,7 +87,10 @@ cd backend
 python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
-python app.py
+```
+```bash
+# From project root
+python -m backend.app
 ```
 
 3. **Frontend Setup:**
@@ -95,7 +98,7 @@ python app.py
 ```bash
 cd client
 npm install
-npm run dev
+npm start
 ```
 
 4. **Access App:**
