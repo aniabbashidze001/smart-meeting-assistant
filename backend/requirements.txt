@@ -1,5 +1,10 @@
-flask
-flask-cors
-openai
-python-dotenv
-assemblyai
+Flask==2.3.3
+flask-cors==4.0.0
+openai==1.14.3
+requests==2.31.0
+python-dotenv==1.0.1
+tqdm==4.66.2
+aiohttp==3.9.5
+aiofiles==23.2.1
+tenacity==8.2.3
+deep-translator
