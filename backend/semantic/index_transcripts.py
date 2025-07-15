@@ -3,11 +3,11 @@ import os
 import time
 from pathlib import Path
 
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 DATA_FOLDER = Path(__file__).resolve().parent.parent / "data"
 INDEX_FILE = Path(__file__).resolve().parent / "vector_index.json"
@@ -75,7 +75,7 @@ def get_embedding(text: str):
                                 or None if the embedding generation fails.
     """
     try:
-        response = openai.embeddings.create(model="text-embedding-ada-002", input=text)
+        response = client.embeddings.create(model="text-embedding-ada-002", input=text)
         return response.data[0].embedding
     except Exception as e:
         print(f"❌ Failed to get embedding: {e}")

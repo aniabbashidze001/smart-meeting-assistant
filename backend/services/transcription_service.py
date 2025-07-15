@@ -6,7 +6,6 @@ from typing import Any, Dict
 import assemblyai as aai
 
 from ..config import ASSEMBLYAI_API_KEY, ASSEMBLYAI_CONFIG, DATA_DIR
-# ✅ Import embedding logic
 from ..semantic.index_transcripts import append_single_embedding
 
 
