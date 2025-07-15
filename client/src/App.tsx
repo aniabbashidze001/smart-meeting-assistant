@@ -10,7 +10,6 @@ import UploadMeeting from "./pages/UploadMeeting";
 import MeetingSummary from "./pages/MeetingSummary";
 import SemanticSearch from "./pages/SemanticSearch";
 import VisualSummaries from "./pages/VisualSummaries";
-import Settings from "./pages/Settings";
 import Calendar from "./pages/Calendar";
 
 function App() {
@@ -23,7 +22,6 @@ function App() {
         <Route path="/summary" element={<MeetingSummary />} />
         <Route path="/search" element={<SemanticSearch />} />
         <Route path="/visuals" element={<VisualSummaries />} />
-        <Route path="/settings" element={<Settings />} />
         <Route path="/calendar" element={<Calendar />} />
       </Routes>
     </Router>
